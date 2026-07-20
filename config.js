@@ -1,5 +1,5 @@
 window.SURVEY_CONFIG = Object.freeze({
-  API_URL: "https://script.google.com/macros/s/AKfycbxmck9Q9pYQkbnwJzKBgLH3sWwaMNvMDltUhBKsnurcH-cuNmgHpm2CEAPprU5eWPlu/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbwj1XAB7JHmZL_7d1qPSuuzZQVMjSt9HGT5rOsO9JwCiTiCC28YwX3krWhhXrRPwI0Q/exec",
   CAMPAIGN_ID: "demo-001",
   REQUIRE_GEOLOCATION: true,
   EXPECTED_MAX_HOURS: 3,
