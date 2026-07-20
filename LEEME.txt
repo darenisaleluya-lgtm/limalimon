@@ -1,0 +1,6 @@
+1. Abra config.js.
+2. Pegue la URL /exec de Apps Script en API_URL.
+3. Suba todos estos archivos a la raíz del repositorio.
+4. Active GitHub Pages y HTTPS.
+5. No suba la carpeta admin-key ni la clave privada.
+6. El usuario debe entrar por el enlace /exec, no directamente por GitHub.
