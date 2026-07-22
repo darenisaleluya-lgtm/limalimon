@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#eef7ff">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src https://script.google.com https://script.googleusercontent.com; media-src 'self' blob:; style-src 'self'; script-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests">
+  <title>Encuesta institucional</title>
+  <link rel="stylesheet" href="styles.css?v=3.3.1">
+</head>
+<body>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
+  <main class="app-shell">
+    <header class="brandbar">
+      <div class="brandmark" aria-hidden="true">EI</div>
+      <div class="brandcopy">
+        <span class="brand-overline">ENTORNO INSTITUCIONAL</span>
+        <strong>Encuesta asistida</strong>
+      </div>
+      <span class="secure-badge">Conexión protegida</span>
+    </header>
+
+    <section id="loadingView" class="view active compact-view" aria-live="polite">
+      <div class="state-icon loading-icon" aria-hidden="true"></div>
+      <p class="eyebrow">INICIANDO</p>
+      <h1>Preparando la encuesta</h1>
+      <p id="loadingText" class="lead">Validando el acceso y las condiciones del entorno…</p>
+      <div class="indeterminate"><span></span></div>
+    </section>
+
+    <section id="loginView" class="view compact-view">
+      <p class="eyebrow">ACCESO AUTORIZADO</p>
+      <h1>Ingrese el código de acceso</h1>
+      <p class="lead">Use el código de cuatro caracteres entregado por su líder.</p>
+      <div class="info-banner network-banner">
+        <span class="banner-icon" aria-hidden="true">↗</span>
+        <div><strong>Antes de comenzar</strong><p>Conéctese a una red Wi-Fi estable o verifique que el celular tenga buena señal de datos.</p></div>
+      </div>
+      <label class="field-label" for="accessCode">Código de acceso</label>
+      <input id="accessCode" class="access-code" type="text" inputmode="text" autocomplete="one-time-code" maxlength="4" pattern="[a-z0-9]{4}" autocapitalize="none" spellcheck="false" placeholder="a7b3" aria-describedby="loginMsg">
+      <button id="loginBtn" class="btn btn-primary"><span>Validar y continuar</span><span aria-hidden="true">→</span></button>
+      <p class="privacy-note">La apertura registra datos técnicos mínimos para proteger la encuesta, recuperar la sesión y detectar accesos anómalos.</p>
+      <p id="loginMsg" class="message" aria-live="polite"></p>
+    </section>
+
+    <section id="setupView" class="view compact-view">
+      <p class="eyebrow">PASO DE PREPARACIÓN</p>
+      <h1>Configure el entorno</h1>
+      <p class="lead">Esta verificación confirma que el dispositivo puede guardar y transmitir la entrevista de forma segura.</p>
+      <div class="setup-list" aria-label="Requisitos del entorno">
+        <div class="setup-item"><span class="setup-number">1</span><div><strong>Conexión</strong><p>Buena señal de datos o red Wi-Fi estable.</p></div></div>
+        <div class="setup-item"><span class="setup-number">2</span><div><strong>Permisos</strong><p>Ubicación y micrófono disponibles.</p></div></div>
+        <div class="setup-item"><span class="setup-number">3</span><div><strong>Almacenamiento</strong><p>Espacio local seguro para proteger el avance.</p></div></div>
+      </div>
+      <label class="consent-card"><input id="consentCheck" type="checkbox"><span>Autorizo la grabación de las respuestas, la ubicación y el registro técnico necesario para la seguridad y recuperación de esta encuesta.</span></label>
+      <button id="configureBtn" class="btn btn-primary"><span>Configurar entorno</span><span aria-hidden="true">✓</span></button>
+      <div id="setupDetails" class="environment-card hidden">
+        <div class="environment-row"><span class="environment-symbol storage-symbol" aria-hidden="true">▣</span><div><strong>Almacenamiento</strong><p id="storageText">Pendiente</p></div></div>
+        <div class="environment-row"><span class="environment-symbol location-symbol" aria-hidden="true">⌖</span><div><strong>Ubicación</strong><p id="locationText">Pendiente</p></div></div>
+        <div class="environment-row"><span class="environment-symbol microphone-symbol" aria-hidden="true">●</span><div class="environment-grow"><strong>Micrófono</strong><p id="microphoneText">Pendiente</p><div class="meter"><span id="setupMeter"></span></div><p id="setupVoiceText" class="voice-text">Escuchando…</p></div></div>
+      </div>
+      <div id="testArea" class="test-area hidden">
+        <button id="testMicBtn" class="btn btn-test" title="Grabar y escuchar una prueba"><span class="test-icon" aria-hidden="true">◉</span><span>Probar y escucharme</span></button>
+        <audio id="testPlayback" controls class="hidden"></audio>
+      </div>
+      <button id="startBtn" class="btn btn-success hidden"><span>Iniciar encuesta</span><span aria-hidden="true">▶</span></button>
+      <p id="setupMsg" class="message" aria-live="polite"></p>
+    </section>
+
+    <section id="surveyView" class="view survey-view">
+      <header class="survey-status">
+        <div class="status-pill"><span id="connectionDot" class="dot"></span><span id="connectionText">Conexión</span></div>
+        <div class="progress-pill"><span id="questionCount">1 / 1</span></div>
+      </header>
+      <div class="question-progress" aria-hidden="true"><span id="questionProgressBar"></span></div>
+
+      <section class="audio-panel" aria-label="Estado del audio">
+        <div class="audio-heading"><span class="audio-orb" aria-hidden="true"></span><div><strong id="voiceText">Escuchando…</strong><p id="audioAdvice">El indicador se pondrá verde cuando reciba voz con claridad.</p></div></div>
+        <div class="meter meter-large"><span id="surveyMeter"></span></div>
+      </section>
+
+      <article id="questionCard" class="question-card theme-institucional">
+        <div id="questionContextBox" class="context-block hidden"><span class="context-label">Contexto</span><p id="questionContext"></p></div>
+        <div id="recommendationBox" class="recommendation-block hidden"><span class="recommendation-icon" aria-hidden="true">i</span><div><strong>Orientación para el entrevistador</strong><p id="questionRecommendation"></p></div></div>
+        <div class="question-heading">
+          <span id="questionBadge" class="question-badge">Pregunta</span>
+          <h2 id="questionText"></h2>
+        </div>
+        <div id="answerArea" class="answer-area"></div>
+      </article>
+
+      <div id="syncCard" class="sync-card"><span class="sync-icon" aria-hidden="true">✓</span><p id="syncText">Avance actualizado.</p></div>
+      <div id="adaptivePause" class="pause-box hidden"><strong>Estamos actualizando el avance</strong><p>Revise la respuesta mientras completamos el cargue.</p></div>
+      <nav class="action-bar">
+        <button id="backBtn" class="btn btn-back"><span aria-hidden="true">←</span><span>Anterior</span></button>
+        <button id="nextBtn" class="btn btn-next"><span>Siguiente</span><span aria-hidden="true">→</span></button>
+      </nav>
+    </section>
+
+    <section id="closingView" class="view compact-view closing-view">
+      <div class="state-icon closing-icon" aria-hidden="true">✓</div>
+      <p class="eyebrow">CIERRE DE LA DINÁMICA</p>
+      <h1>Estamos guardando el avance</h1>
+      <p class="lead">Mantenga esta ventana abierta y no apague el celular hasta alcanzar el 100 %.</p>
+      <div class="progress progress-large"><span id="closingProgress"></span></div>
+      <p id="closingPercent" class="closing-percent">0 %</p>
+      <div class="closing-message-card"><span aria-hidden="true">↻</span><p id="closingMsg" class="message">Organizando la información…</p></div>
+      <button id="backupBtn" class="btn btn-back hidden">Descargar respaldo protegido</button>
+    </section>
+
+    <section id="doneView" class="view compact-view done-view">
+      <div class="state-icon done-icon" aria-hidden="true">✓</div>
+      <p class="eyebrow">PROCESO COMPLETADO</p>
+      <h1>Gracias por completar la dinámica</h1>
+      <p class="lead">Las respuestas quedaron guardadas correctamente. Ya puede cerrar esta ventana.</p>
+      <div class="success-summary"><span aria-hidden="true">✓</span><p>Encuesta finalizada y cargue confirmado.</p></div>
+    </section>
+
+    <section id="blockedView" class="view compact-view blocked-view">
+      <div class="state-icon blocked-icon" aria-hidden="true">!</div>
+      <p class="eyebrow">ENTORNO NO DISPONIBLE</p>
+      <h1>No fue posible configurar el dispositivo</h1>
+      <p class="lead">El navegador o el celular aplica restricciones que impiden guardar la encuesta de forma segura.</p>
+      <div class="info-banner warning-banner"><span class="banner-icon" aria-hidden="true">i</span><div><strong>Cómo continuar</strong><p>Abra el enlace directamente en Google Chrome, revise los permisos y la privacidad, instale un navegador actualizado o use otro dispositivo.</p></div></div>
+      <p id="blockedDetail" class="technical-detail"></p>
+    </section>
+  </main>
+  <script src="config.js?v=3.3.1"></script>
+  <script src="app.js?v=3.3.1"></script>
+</body>
+</html>
