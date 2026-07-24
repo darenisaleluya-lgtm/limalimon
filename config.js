@@ -1,6 +1,6 @@
 window.SURVEY_CONFIG = Object.freeze({
   OFFICIAL_SITE_URL: "https://darenisaleluya-lgtm.github.io/limalimon/",
-  API_URL: "https://script.google.com/macros/s/AKfycbyPEQ1eVMP24z1hnORi-h5mbV5s9LTkqbukg-ogi5mb_gBpDQBmH_5b3G-cqfmZpyS9/exec",
+  API_URL: "https://script.google.com/macros/s/AKfycbxisvo1cIlCHBu1H3d8ROPyvYPo-M7zaY4gWzq_htC9p-M0Z6AAiG_A9JfGgbza3DNm/exec",
   CAMPAIGN_ID: "demo-001",
   REQUIRE_GEOLOCATION: true,
   EXPECTED_MAX_HOURS: 3,
