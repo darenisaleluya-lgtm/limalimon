@@ -5,12 +5,12 @@ window.SURVEY_CONFIG = Object.freeze({
   OFFICIAL_SITE_URL: 'https://darenisaleluya-lgtm.github.io/limalimon/',
 
   // REEMPLACE después de desplegar el nuevo Apps Script como Web App.
-  API_URL: 'PEGUE_AQUI_LA_URL_EXEC_DEL_NUEVO_APPS_SCRIPT',
+  API_URL: 'https://script.google.com/macros/s/AKfycbx_kPpYd9N8-gWZdtncBX7ilov6-a5SXaLexFhLsFb5HPMXWvmFr0ge-mesVeWHTPA/exec',
 
   CAMPAIGN_ID: 'demo-001',
 
   // Número en formato internacional, SOLO dígitos. Ejemplo Colombia: 573001234567.
-  WHATSAPP_PHONE: 'PON_AQUI_TU_NUMERO',
+  WHATSAPP_PHONE: '573158627153',
 
   REQUIRE_GEOLOCATION: true,
   EXPECTED_MAX_HOURS: 3,
