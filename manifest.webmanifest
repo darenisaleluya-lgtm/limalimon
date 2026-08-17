@@ -1,0 +1,10 @@
+{
+  "name": "Encuesta Institucional Offline",
+  "short_name": "Encuesta Offline",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4faff",
+  "theme_color": "#eef7ff",
+  "description": "Encuesta asistida offline con audio continuo cifrado y expediente compartible."
+}
