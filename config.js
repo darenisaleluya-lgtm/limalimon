@@ -5,7 +5,7 @@ window.SURVEY_CONFIG = Object.freeze({
   OFFICIAL_SITE_URL: 'https://darenisaleluya-lgtm.github.io/limalimon/',
 
   // REEMPLACE después de desplegar el nuevo Apps Script como Web App.
-  API_URL: 'PEGUE_AQUI_LA_URL_EXEC_DEL_NUEVO_APPS_SCRIPT',
+  API_URL: 'https://script.google.com/macros/s/AKfycbyeH3l1OAnEMr_r690dC2K9thc1sNQCJX73oM64vQ2n13Nc1lEzVX5qxG6DzxAsKphn/exec',
 
   CAMPAIGN_ID: 'demo-001',
 
