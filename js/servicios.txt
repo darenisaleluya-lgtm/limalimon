@@ -1,0 +1,647 @@
+/* ============================================================
+   ZONA CARIBE · MÓDULO SERVICIOS · V5
+   Fuente entregada como .txt por solicitud del usuario.
+   El index lleva esta misma lógica embebida para evitar
+   problemas de MIME al cargar archivos .txt como JavaScript.
+   ============================================================ */
+
+(() => {
+  'use strict';
+
+  const moduleEl = document.getElementById('servicios-module');
+  const config = window.ZC_SERVICIOS_CONFIG;
+
+  if (!moduleEl || !config || !Array.isArray(config.hoteles)) return;
+
+  const hotels = config.hoteles;
+  const restaurants = Array.isArray(config.restaurantes) ? config.restaurantes : [];
+  if (!hotels.length) return;
+
+  const closeBtn = document.getElementById('services-close');
+  const homeView = document.getElementById('services-home');
+  const hotelsView = document.getElementById('services-hotels-panel');
+  const restaurantsView = document.getElementById('services-restaurants-panel');
+  const placeholderView = document.getElementById('services-placeholder');
+  const categoryButtons = [...moduleEl.querySelectorAll('[data-service-category]')];
+  const backButtons = [...moduleEl.querySelectorAll('[data-services-back]')];
+
+  const tabsEl = document.getElementById('services-tabs');
+  const cardEl = document.getElementById('hotel-card');
+  const photoWrapEl = document.getElementById('hotel-photo-wrap');
+  const photoEl = document.getElementById('hotel-photo');
+  const photoIndexEl = document.getElementById('hotel-photo-index');
+  const nameEl = document.getElementById('hotel-name');
+  const phonesEl = document.getElementById('hotel-phones');
+  const addressEl = document.getElementById('hotel-address');
+
+  const restaurantNowEl = document.getElementById('restaurant-now');
+  const restaurantFiltersEl = document.getElementById('restaurant-filters');
+  const restaurantListEl = document.getElementById('restaurant-list');
+  const restaurantTreatsEl = document.getElementById('restaurant-treats-list');
+  const restaurantTreatsSection = document.getElementById('restaurant-treats');
+
+  const placeholderTitle = document.getElementById('services-placeholder-title');
+  const placeholderText = document.getElementById('services-placeholder-text');
+  const placeholderIcon = document.getElementById('services-placeholder-icon');
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const categoryMeta = {
+    hoteles: {
+      title: 'Hoteles',
+      color: '#1677c4',
+      rgb: '22,119,196'
+    },
+    restaurantes: {
+      title: 'Restaurantes',
+      color: '#28a10f',
+      rgb: '40,161,15'
+    },
+    transporte: {
+      title: 'Transporte',
+      color: '#d2510e',
+      rgb: '210,81,14'
+    }
+  };
+
+  const eventPalette = [
+    { hex: '#1677c4', rgb: '22,119,196' },
+    { hex: '#28a10f', rgb: '40,161,15' },
+    { hex: '#d2510e', rgb: '210,81,14' },
+    { hex: '#b81180', rgb: '184,17,128' }
+  ];
+
+  const mealLabels = {
+    desayuno: 'Desayuno',
+    almuerzo: 'Almuerzo',
+    cena: 'Cena',
+    reposteria: 'Repostería'
+  };
+
+  let isOpen = false;
+  let activeIndex = -1;
+  let swapToken = 0;
+  let currentView = 'home';
+  let restaurantFilter = 'auto';
+  let restaurantTimer = null;
+
+  const iconPhone = `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6.7 10.7a15.9 15.9 0 0 0 6.6 6.6l2.1-2.1c.4-.4.9-.5 1.4-.3 1 .3 2 .5 3.1.5.6 0 1.1.5 1.1 1.1V20c0 .6-.5 1.1-1.1 1.1C10.4 21.1 2.9 13.6 2.9 4.1 2.9 3.5 3.4 3 4 3h3.5c.6 0 1.1.5 1.1 1.1 0 1.1.2 2.1.5 3.1.2.5.1 1-.3 1.4l-2.1 2.1Z" fill="currentColor"/>
+    </svg>`;
+
+  const iconPin = `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 21s6-5.5 6-11a6 6 0 1 0-12 0c0 5.5 6 11 6 11Z"></path>
+      <circle cx="12" cy="10" r="2.2"></circle>
+    </svg>`;
+
+  const iconClock = `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="8"></circle>
+      <path d="M12 8v4l3 2"></path>
+    </svg>`;
+
+  const iconWhatsApp = `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M20 11.6a8 8 0 0 1-11.8 7l-4.2 1.1 1.1-4A8 8 0 1 1 20 11.6Z"></path>
+      <path d="M8.3 7.9c.3 2 2 4.4 4.8 5.7 1 .5 1.8.4 2.5-.4"></path>
+    </svg>`;
+
+  const iconBreakfast = `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 15h12a4 4 0 0 0 0-8H4v8Z"></path>
+      <path d="M4 18h14M18 9h1a2 2 0 0 1 0 4h-1"></path>
+    </svg>`;
+
+  const iconLunch = `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="7"></circle>
+      <circle cx="12" cy="12" r="3.2"></circle>
+      <path d="M4 5v14M2.8 5v5M5.2 5v5M19 5v14M19 5c2 1.5 2.4 4.1 0 6"></path>
+    </svg>`;
+
+  const iconDinner = `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 15h16M6 15a6 6 0 0 1 12 0M12 7V5"></path>
+      <path d="M5 19h14"></path>
+    </svg>`;
+
+  const iconCake = `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 11h14v8H5v-8ZM7 11V8h10v3"></path>
+      <path d="M9 8V5M15 8V5M9 5h.01M15 5h.01"></path>
+    </svg>`;
+
+  function normalizePhone(phone) {
+    return String(phone).replace(/[^0-9+]/g, '');
+  }
+
+  function getHotel(index) {
+    return hotels[Math.max(0, Math.min(index, hotels.length - 1))];
+  }
+
+  function setTheme(color = '#1677c4', rgb = '22,119,196') {
+    moduleEl.style.setProperty('--services-accent', color);
+    moduleEl.style.setProperty('--services-accent-rgb', rgb);
+  }
+
+  function setView(view) {
+    currentView = view;
+
+    homeView.hidden = view !== 'home';
+    hotelsView.hidden = view !== 'hoteles';
+    restaurantsView.hidden = view !== 'restaurantes';
+    placeholderView.hidden = view !== 'transporte';
+
+    [homeView, hotelsView, restaurantsView, placeholderView].forEach(panel => {
+      panel?.classList.remove('is-entering');
+    });
+
+    const currentPanel = view === 'home'
+      ? homeView
+      : view === 'hoteles'
+        ? hotelsView
+        : view === 'restaurantes'
+          ? restaurantsView
+          : placeholderView;
+
+    if (currentPanel && !reduceMotion) {
+      requestAnimationFrame(() => currentPanel.classList.add('is-entering'));
+    }
+  }
+
+  function showHome() {
+    activeIndex = -1;
+    cardEl.hidden = true;
+    setTheme('#1677c4', '22,119,196');
+    setView('home');
+    stopRestaurantTimer();
+  }
+
+  function openCategory(category) {
+    const meta = categoryMeta[category];
+    if (!meta) return;
+
+    setTheme(meta.color, meta.rgb);
+
+    if (category === 'hoteles') {
+      activeIndex = -1;
+      cardEl.hidden = true;
+      renderTabs();
+      setView('hoteles');
+      stopRestaurantTimer();
+      window.setTimeout(() => {
+        tabsEl.querySelector('.services-tab')?.focus({ preventScroll: true });
+      }, reduceMotion ? 0 : 280);
+      return;
+    }
+
+    if (category === 'restaurantes') {
+      restaurantFilter = 'auto';
+      setView('restaurantes');
+      renderRestaurants();
+      startRestaurantTimer();
+      return;
+    }
+
+    stopRestaurantTimer();
+    placeholderTitle.textContent = meta.title;
+    placeholderText.textContent = 'Información en preparación. Esta sección conservará la misma experiencia visual cuando se incorporen los datos.';
+    placeholderIcon.dataset.kind = category;
+    setView(category);
+  }
+
+  function createPhoneChip(phone) {
+    const link = document.createElement('a');
+    link.className = 'hotel-contact hotel-contact--phone';
+    link.href = `tel:${normalizePhone(phone)}`;
+    link.setAttribute('aria-label', `Llamar al ${phone}`);
+    link.innerHTML = `${iconPhone}<span>${phone}</span>`;
+    return link;
+  }
+
+  function renderTabs() {
+    tabsEl.replaceChildren();
+
+    hotels.forEach((hotel, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'services-tab';
+      button.dataset.hotelIndex = String(index);
+      button.style.setProperty('--hotel-accent', hotel.accent || '#1677c4');
+      button.setAttribute('role', 'tab');
+      button.setAttribute('aria-selected', index === activeIndex ? 'true' : 'false');
+      button.tabIndex = index === activeIndex || (activeIndex < 0 && index === 0) ? 0 : -1;
+
+      if (index === activeIndex) button.classList.add('is-active');
+
+      button.innerHTML = `
+        <span class="services-tab__number">${String(index + 1).padStart(2, '0')}</span>
+        <span class="services-tab__label">${hotel.nombre}</span>
+        <span class="services-tab__dot" aria-hidden="true"></span>`;
+
+      button.addEventListener('click', () => selectHotel(index));
+      button.addEventListener('keydown', event => handleTabKeydown(event, index));
+      tabsEl.appendChild(button);
+    });
+  }
+
+  function handleTabKeydown(event, index) {
+    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+
+    let next = index;
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = (index + 1) % hotels.length;
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') next = (index - 1 + hotels.length) % hotels.length;
+    if (event.key === 'Home') next = 0;
+    if (event.key === 'End') next = hotels.length - 1;
+
+    tabsEl.querySelector(`[data-hotel-index="${next}"]`)?.focus();
+  }
+
+  function renderContacts(hotel) {
+    phonesEl.replaceChildren();
+    (hotel.telefonos || []).forEach(phone => phonesEl.appendChild(createPhoneChip(phone)));
+
+    addressEl.innerHTML = `
+      <span class="hotel-address__icon">${iconPin}</span>
+      <span>${hotel.direccion || 'Dirección no disponible'}</span>`;
+  }
+
+  function animateSwap() {
+    if (reduceMotion || !cardEl) return;
+
+    cardEl.getAnimations().forEach(animation => animation.cancel());
+    photoWrapEl?.getAnimations().forEach(animation => animation.cancel());
+
+    cardEl.animate(
+      [
+        { opacity: .3, transform: 'translateY(14px) scale(.985)' },
+        { opacity: 1, transform: 'translateY(0) scale(1)' }
+      ],
+      {
+        duration: 520,
+        easing: 'cubic-bezier(.16,1,.3,1)',
+        fill: 'both'
+      }
+    );
+
+    photoWrapEl?.animate(
+      [
+        { opacity: .35, transform: 'scale(.97)' },
+        { opacity: 1, transform: 'scale(1)' }
+      ],
+      {
+        duration: 620,
+        easing: 'cubic-bezier(.16,1,.3,1)',
+        fill: 'both'
+      }
+    );
+  }
+
+  function selectHotel(index, { animate = true } = {}) {
+    activeIndex = index;
+    const hotel = getHotel(activeIndex);
+    const token = ++swapToken;
+
+    setTheme(hotel.accent || '#1677c4', hotel.tint || '22,119,196');
+    renderTabs();
+
+    cardEl.hidden = false;
+    nameEl.textContent = hotel.nombre;
+    photoIndexEl.textContent = `${String(activeIndex + 1).padStart(2, '0')} · Hotel`;
+    renderContacts(hotel);
+
+    const preload = new Image();
+    preload.decoding = 'async';
+    preload.onload = () => {
+      if (token !== swapToken) return;
+      photoEl.src = hotel.foto;
+      photoEl.alt = `Fachada de ${hotel.nombre}`;
+      if (animate) animateSwap();
+    };
+    preload.src = hotel.foto;
+
+    if (preload.complete) preload.onload();
+  }
+
+  /* ============================================================
+     RESTAURANTES
+     ============================================================ */
+
+  function minutesFromTime(value) {
+    const [h, m] = String(value || '00:00').split(':').map(Number);
+    return (h * 60) + (m || 0);
+  }
+
+  function getBogotaClock() {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Bogota',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).formatToParts(new Date());
+
+    let hour = Number(parts.find(part => part.type === 'hour')?.value || 0);
+    const minute = Number(parts.find(part => part.type === 'minute')?.value || 0);
+    if (hour === 24) hour = 0;
+
+    return {
+      hour,
+      minute,
+      total: (hour * 60) + minute
+    };
+  }
+
+  function currentMeal(totalMinutes) {
+    if (totalMinutes < 11 * 60) return 'desayuno';
+    if (totalMinutes < 17 * 60) return 'almuerzo';
+    return 'cena';
+  }
+
+  function formatTime24(value) {
+    const [h, m] = String(value).split(':').map(Number);
+    const suffix = h >= 12 ? 'p. m.' : 'a. m.';
+    const hour = h % 12 || 12;
+    return `${hour}:${String(m || 0).padStart(2, '0')} ${suffix}`;
+  }
+
+  function isRestaurantOpen(restaurant, totalMinutes) {
+    const start = minutesFromTime(restaurant.horario?.abre);
+    const end = minutesFromTime(restaurant.horario?.cierra);
+    return totalMinutes >= start && totalMinutes < end;
+  }
+
+  function restaurantTimingText(restaurant, totalMinutes) {
+    const start = minutesFromTime(restaurant.horario?.abre);
+    const end = minutesFromTime(restaurant.horario?.cierra);
+
+    if (totalMinutes >= start && totalMinutes < end) {
+      return `Cierra ${formatTime24(restaurant.horario.cierra)}`;
+    }
+
+    if (totalMinutes < start) {
+      return `Abre ${formatTime24(restaurant.horario.abre)}`;
+    }
+
+    return `Abre mañana ${formatTime24(restaurant.horario.abre)}`;
+  }
+
+  function mealIcon(service) {
+    if (service === 'desayuno') return iconBreakfast;
+    if (service === 'almuerzo') return iconLunch;
+    if (service === 'cena') return iconDinner;
+    return iconCake;
+  }
+
+  function restaurantAccent(index) {
+    return eventPalette[index % eventPalette.length];
+  }
+
+  function restaurantRank(restaurant, meal, totalMinutes) {
+    const open = isRestaurantOpen(restaurant, totalMinutes) ? 0 : 1;
+    const start = minutesFromTime(restaurant.horario?.abre);
+    const end = minutesFromTime(restaurant.horario?.cierra);
+    const remaining = open === 0 ? Math.max(0, end - totalMinutes) : Math.abs(start - totalMinutes);
+    const supportsMeal = restaurant.servicios.includes(meal) ? 0 : 1;
+    return (supportsMeal * 100000) + (open * 10000) + remaining;
+  }
+
+  function buildMealChip(service, activeMeal) {
+    const chip = document.createElement('span');
+    chip.className = 'restaurant-meal-chip';
+    if (service === activeMeal) chip.classList.add('is-current');
+    chip.innerHTML = `${mealIcon(service)}<span>${mealLabels[service] || service}</span>`;
+    return chip;
+  }
+
+  function buildRestaurantCard(restaurant, index, activeMeal, totalMinutes, { compact = false } = {}) {
+    const accent = restaurantAccent(index);
+    const open = isRestaurantOpen(restaurant, totalMinutes);
+    const card = document.createElement('article');
+    card.className = `restaurant-card${compact ? ' restaurant-card--compact' : ''}`;
+    card.style.setProperty('--restaurant-accent', accent.hex);
+    card.style.setProperty('--restaurant-accent-rgb', accent.rgb);
+
+    const heading = document.createElement('div');
+    heading.className = 'restaurant-card__head';
+    heading.innerHTML = `
+      <div class="restaurant-card__title-wrap">
+        <span class="restaurant-card__index">${String(index + 1).padStart(2, '0')}</span>
+        <h4 class="restaurant-card__name">${restaurant.nombre}</h4>
+      </div>
+      <span class="restaurant-status ${open ? 'is-open' : 'is-closed'}">
+        <span class="restaurant-status__dot" aria-hidden="true"></span>
+        ${open ? 'Abierto' : 'Cerrado'}
+      </span>`;
+
+    const schedule = document.createElement('div');
+    schedule.className = 'restaurant-card__schedule';
+    schedule.innerHTML = `
+      <span class="restaurant-info-chip">${iconClock}<span>${formatTime24(restaurant.horario.abre)} – ${formatTime24(restaurant.horario.cierra)}</span></span>
+      <span class="restaurant-info-chip restaurant-info-chip--state">${restaurantTimingText(restaurant, totalMinutes)}</span>`;
+
+    const meals = document.createElement('div');
+    meals.className = 'restaurant-card__meals';
+    restaurant.servicios.forEach(service => meals.appendChild(buildMealChip(service, activeMeal)));
+
+    const details = document.createElement('div');
+    details.className = 'restaurant-card__details';
+
+    if (restaurant.direccion) {
+      const address = document.createElement('span');
+      address.className = 'restaurant-detail';
+      address.innerHTML = `${iconPin}<span>${restaurant.direccion}</span>`;
+      details.appendChild(address);
+    }
+
+    if (restaurant.celular) {
+      const phone = document.createElement('a');
+      phone.className = 'restaurant-detail restaurant-detail--link';
+      phone.href = `tel:${normalizePhone(restaurant.celular)}`;
+      phone.innerHTML = `${iconPhone}<span>${restaurant.celular}</span>`;
+      details.appendChild(phone);
+    }
+
+    if (restaurant.whatsappUsuario) {
+      const wa = document.createElement('span');
+      wa.className = 'restaurant-detail restaurant-detail--whatsapp';
+      wa.innerHTML = `${iconWhatsApp}<span>@${restaurant.whatsappUsuario}</span>`;
+      details.appendChild(wa);
+    }
+
+    card.append(heading, schedule, meals);
+    if (details.children.length) card.appendChild(details);
+
+    if (!reduceMotion) {
+      card.style.animationDelay = `${Math.min(index * 55, 420)}ms`;
+    }
+
+    return card;
+  }
+
+  function buildRestaurantFilters(activeMeal) {
+    if (!restaurantFiltersEl) return;
+
+    const filters = [
+      { id: 'auto', label: `Ahora · ${mealLabels[activeMeal]}`, icon: mealIcon(activeMeal) },
+      { id: 'desayuno', label: 'Desayuno', icon: iconBreakfast },
+      { id: 'almuerzo', label: 'Almuerzo', icon: iconLunch },
+      { id: 'cena', label: 'Cena', icon: iconDinner }
+    ];
+
+    restaurantFiltersEl.replaceChildren();
+
+    filters.forEach(filter => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'restaurant-filter';
+      if (restaurantFilter === filter.id) button.classList.add('is-active');
+      button.setAttribute('aria-pressed', restaurantFilter === filter.id ? 'true' : 'false');
+      button.innerHTML = `${filter.icon}<span>${filter.label}</span>`;
+      button.addEventListener('click', () => {
+        restaurantFilter = filter.id;
+        renderRestaurants();
+      });
+      restaurantFiltersEl.appendChild(button);
+    });
+  }
+
+  function renderRestaurantNow(activeMeal, totalMinutes, visibleCount) {
+    if (!restaurantNowEl) return;
+
+    const clock = getBogotaClock();
+    const hour12 = clock.hour % 12 || 12;
+    const suffix = clock.hour >= 12 ? 'p. m.' : 'a. m.';
+
+    restaurantNowEl.innerHTML = `
+      <span class="restaurant-now__icon">${mealIcon(activeMeal)}</span>
+      <span class="restaurant-now__copy">
+        <strong>${mealLabels[activeMeal]}</strong>
+        <span>${hour12}:${String(clock.minute).padStart(2, '0')} ${suffix} · ${visibleCount} opciones</span>
+      </span>
+      <span class="restaurant-now__pulse" aria-hidden="true"></span>`;
+  }
+
+  function renderRestaurants() {
+    if (!restaurantsView || !restaurants.length) return;
+
+    const clock = getBogotaClock();
+    const autoMeal = currentMeal(clock.total);
+    const activeMeal = restaurantFilter === 'auto' ? autoMeal : restaurantFilter;
+
+    buildRestaurantFilters(autoMeal);
+
+    const mainRestaurants = restaurants
+      .filter(restaurant => restaurant.servicios.includes(activeMeal))
+      .sort((a, b) => restaurantRank(a, activeMeal, clock.total) - restaurantRank(b, activeMeal, clock.total));
+
+    renderRestaurantNow(activeMeal, clock.total, mainRestaurants.length);
+
+    restaurantListEl.replaceChildren();
+
+    mainRestaurants.forEach((restaurant, index) => {
+      restaurantListEl.appendChild(buildRestaurantCard(restaurant, index, activeMeal, clock.total));
+    });
+
+    if (!mainRestaurants.length) {
+      const empty = document.createElement('div');
+      empty.className = 'restaurant-empty';
+      empty.textContent = `No hay opciones registradas para ${mealLabels[activeMeal].toLowerCase()}.`;
+      restaurantListEl.appendChild(empty);
+    }
+
+    const treats = restaurants
+      .filter(restaurant => restaurant.servicios.includes('reposteria'))
+      .sort((a, b) => {
+        const openA = isRestaurantOpen(a, clock.total) ? 0 : 1;
+        const openB = isRestaurantOpen(b, clock.total) ? 0 : 1;
+        return openA - openB || a.nombre.localeCompare(b.nombre, 'es');
+      });
+
+    restaurantTreatsEl.replaceChildren();
+    treats.forEach((restaurant, index) => {
+      restaurantTreatsEl.appendChild(buildRestaurantCard(restaurant, index, 'reposteria', clock.total, { compact: true }));
+    });
+
+    if (restaurantTreatsSection) {
+      restaurantTreatsSection.hidden = treats.length === 0;
+    }
+  }
+
+  function startRestaurantTimer() {
+    stopRestaurantTimer();
+    restaurantTimer = window.setInterval(() => {
+      if (isOpen && currentView === 'restaurantes') renderRestaurants();
+    }, 60000);
+  }
+
+  function stopRestaurantTimer() {
+    if (!restaurantTimer) return;
+    window.clearInterval(restaurantTimer);
+    restaurantTimer = null;
+  }
+
+  function openServices() {
+    if (isOpen) {
+      showHome();
+      return;
+    }
+
+    isOpen = true;
+    moduleEl.classList.add('is-active');
+    moduleEl.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('zc-services-open');
+    showHome();
+
+    window.setTimeout(() => {
+      categoryButtons[0]?.focus({ preventScroll: true });
+    }, reduceMotion ? 0 : 280);
+  }
+
+  function closeServices() {
+    if (!isOpen) return;
+    isOpen = false;
+    moduleEl.classList.remove('is-active');
+    moduleEl.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('zc-services-open');
+    stopRestaurantTimer();
+    showHome();
+  }
+
+  categoryButtons.forEach(button => {
+    button.addEventListener('click', () => openCategory(button.dataset.serviceCategory));
+  });
+
+  backButtons.forEach(button => {
+    button.addEventListener('click', showHome);
+  });
+
+  document.addEventListener('zc:menu:navigate', event => {
+    const target = event.detail?.module;
+    if (target === 'servicios') openServices();
+    else closeServices();
+  });
+
+  moduleEl.addEventListener('zc:module:activate', openServices);
+
+  closeBtn?.addEventListener('click', () => {
+    const home = document.querySelector('.zc-menu__item[data-menu-target="inicio"]');
+    if (home) home.click();
+    else closeServices();
+  });
+
+  moduleEl.addEventListener('keydown', event => {
+    if (event.key !== 'Escape') return;
+
+    if (currentView !== 'home') {
+      showHome();
+    } else {
+      closeServices();
+    }
+  });
+
+  renderTabs();
+  showHome();
+})();
