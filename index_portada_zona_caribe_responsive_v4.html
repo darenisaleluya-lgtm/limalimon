@@ -1,0 +1,945 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#031a26" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="description" content="Encuentro Zonal de Semilleros de Investigación - Zona Caribe" />
+  <title>Zona Caribe · Encuentro de Semilleros</title>
+
+  <link rel="preload" href="./assets/hero.webp" as="image" type="image/webp" fetchpriority="high" />
+  <link rel="preload" href="./assets/evento-titulo.png" as="image" type="image/png" fetchpriority="high" />
+
+  <style>
+    :root{
+      --text:#fff;
+      --muted:rgba(255,255,255,.70);
+      --accent:#76d8ef;
+      --accent-2:#2aa9d7;
+      --deep:#031a26;
+
+      /* Paleta tomada de la identidad visual del encuentro */
+      --event-blue:#1677c4;
+      --event-green:#28a10f;
+      --event-orange:#d2510e;
+      --event-magenta:#b81180;
+
+      /* Se actualiza por JS para responder bien a barras móviles */
+      --vh:1vh;
+      --hero-focus-x:72%;
+      --hero-focus-y:50%;
+      --safe-top:env(safe-area-inset-top,0px);
+      --safe-bottom:env(safe-area-inset-bottom,0px);
+      --safe-left:env(safe-area-inset-left,0px);
+      --safe-right:env(safe-area-inset-right,0px);
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      min-height:100%;
+      background:#071018;
+      font-family:Arial,Helvetica,sans-serif;
+      -webkit-text-size-adjust:100%;
+      text-size-adjust:100%;
+    }
+
+    body{
+      overflow:hidden;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    .app-shell{
+      width:100%;
+      min-height:100svh;
+    }
+
+    .hero{
+      position:relative;
+      width:100%;
+      min-height:100svh;
+      height:calc(var(--vh, 1vh) * 100);
+      max-height:100dvh;
+      overflow:hidden;
+      background:#0b1620;
+      isolation:isolate;
+    }
+
+    /*
+      Fondo responsive con punto focal.
+      En móvil, 72% / 50% reproduce el recorte del SVG de 402 x 874.
+      Al crecer la pantalla, object-fit:cover revela más imagen sin deformarla.
+    */
+    .hero__image{
+      position:absolute;
+      inset:0;
+      z-index:-10;
+      width:100%;
+      height:100%;
+      max-width:none;
+      object-fit:cover;
+      object-position:var(--hero-focus-x) var(--hero-focus-y);
+      transform:none;
+      user-select:none;
+      pointer-events:none;
+    }
+
+    .hero__shade{
+      position:absolute;
+      inset:0;
+      z-index:-9;
+      pointer-events:none;
+      background:
+        linear-gradient(
+          180deg,
+          rgba(2,9,15,.02) 0%,
+          rgba(2,9,15,0) 42%,
+          rgba(2,9,15,.08) 57%,
+          rgba(2,9,15,.44) 73%,
+          rgba(2,9,15,.76) 88%,
+          rgba(2,9,15,.94) 100%
+        );
+    }
+
+    .hero__ambient{
+      position:absolute;
+      inset:0;
+      z-index:-8;
+      pointer-events:none;
+      background:
+        radial-gradient(58% 30% at 50% 108%, rgba(0,114,167,.32), transparent 72%),
+        radial-gradient(34% 20% at 8% 74%, rgba(57,215,235,.10), transparent 76%),
+        radial-gradient(30% 18% at 94% 72%, rgba(57,215,235,.08), transparent 78%);
+      box-shadow:
+        inset 0 0 110px rgba(0,0,0,.18),
+        inset 0 -110px 120px rgba(0,18,42,.18);
+      animation:ambientBreath 8s ease-in-out infinite alternate;
+    }
+
+    .hero__glow{
+      position:absolute;
+      left:7%;
+      right:7%;
+      bottom:9%;
+      height:120px;
+      z-index:-7;
+      pointer-events:none;
+      border-radius:50%;
+      background:
+        radial-gradient(ellipse at center,rgba(30,174,226,.18) 0%, rgba(30,174,226,.06) 44%, transparent 74%);
+      filter:blur(24px);
+      animation:glowBreath 5.8s ease-in-out infinite alternate;
+    }
+
+    .hero__light-rings,
+    .hero__particles,
+    .hero__orbs,
+    .hero__dust{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      overflow:hidden;
+    }
+
+    .hero__light-rings{ z-index:-6; }
+    .hero__particles{ z-index:-5; }
+    .hero__orbs{ z-index:-4; }
+    .hero__dust{ z-index:-3; }
+
+    .hero__light-rings span{
+      position:absolute;
+      display:block;
+      border-radius:999px;
+      border:1px solid rgba(118,216,239,.18);
+      filter:blur(.2px);
+      opacity:.55;
+      animation:ringFloat 9s ease-in-out infinite;
+    }
+
+    .hero__light-rings span:nth-child(1){left:6%; bottom:12%; width:48px; height:48px; animation-delay:0s;}
+    .hero__light-rings span:nth-child(2){left:18%; bottom:9%; width:24px; height:24px; animation-delay:1.5s;}
+    .hero__light-rings span:nth-child(3){left:30%; bottom:15%; width:36px; height:36px; animation-delay:3s;}
+    .hero__light-rings span:nth-child(4){left:48%; bottom:8%; width:58px; height:58px; animation-delay:2.2s;}
+    .hero__light-rings span:nth-child(5){left:70%; bottom:13%; width:30px; height:30px; animation-delay:4.1s;}
+    .hero__light-rings span:nth-child(6){left:84%; bottom:10%; width:42px; height:42px; animation-delay:5.2s;}
+
+    .hero__particles span,
+    .hero__dust span{
+      position:absolute;
+      display:block;
+      border-radius:50%;
+      opacity:0;
+    }
+
+    .hero__particles span{
+      width:4px;
+      height:4px;
+      background:rgba(118,216,239,.82);
+      box-shadow:0 0 10px rgba(118,216,239,.35);
+      animation:floatParticle 11s linear infinite;
+    }
+
+    .hero__particles span:nth-child(1){left:8%; bottom:12%; animation-delay:0s}
+    .hero__particles span:nth-child(2){left:15%; bottom:7%; width:3px;height:3px; animation-delay:1.3s}
+    .hero__particles span:nth-child(3){left:23%; bottom:14%; width:5px;height:5px; animation-delay:4.4s}
+    .hero__particles span:nth-child(4){left:31%; bottom:10%; animation-delay:2.1s}
+    .hero__particles span:nth-child(5){left:40%; bottom:18%; width:3px;height:3px; animation-delay:6s}
+    .hero__particles span:nth-child(6){left:49%; bottom:8%; width:5px;height:5px; animation-delay:3.3s}
+    .hero__particles span:nth-child(7){left:58%; bottom:14%; animation-delay:7.4s}
+    .hero__particles span:nth-child(8){left:67%; bottom:9%; width:3px;height:3px; animation-delay:5.1s}
+    .hero__particles span:nth-child(9){left:75%; bottom:16%; width:5px;height:5px; animation-delay:8.2s}
+    .hero__particles span:nth-child(10){left:83%; bottom:8%; animation-delay:1.8s}
+    .hero__particles span:nth-child(11){left:90%; bottom:13%; width:3px;height:3px; animation-delay:6.3s}
+    .hero__particles span:nth-child(12){left:95%; bottom:7%; animation-delay:9.1s}
+
+    .hero__orbs span{
+      position:absolute;
+      display:block;
+      width:26px;
+      height:26px;
+      border-radius:50%;
+      background:radial-gradient(circle at 35% 35%, rgba(188,245,255,.55), rgba(80,183,231,.12) 45%, rgba(80,183,231,0) 72%);
+      filter:blur(4px);
+      mix-blend-mode:screen;
+      opacity:.38;
+      animation:orbDrift 12s ease-in-out infinite;
+    }
+
+    .hero__orbs span:nth-child(1){left:4%; bottom:6%; animation-delay:0s}
+    .hero__orbs span:nth-child(2){left:26%; bottom:5%; width:18px; height:18px; animation-delay:2.1s}
+    .hero__orbs span:nth-child(3){left:46%; bottom:3%; width:34px; height:34px; animation-delay:3.8s}
+    .hero__orbs span:nth-child(4){left:66%; bottom:6%; width:20px; height:20px; animation-delay:5s}
+    .hero__orbs span:nth-child(5){left:84%; bottom:4%; width:30px; height:30px; animation-delay:1.1s}
+
+    .hero__dust span{
+      width:2px;
+      height:2px;
+      background:rgba(255,255,255,.72);
+      box-shadow:0 0 7px rgba(255,255,255,.35);
+      animation:dustRise 14s linear infinite;
+    }
+
+    .hero__dust span:nth-child(1){left:12%; bottom:4%; animation-delay:-1s}
+    .hero__dust span:nth-child(2){left:21%; bottom:2%; animation-delay:-5s}
+    .hero__dust span:nth-child(3){left:34%; bottom:6%; animation-delay:-7s}
+    .hero__dust span:nth-child(4){left:43%; bottom:3%; animation-delay:-3s}
+    .hero__dust span:nth-child(5){left:55%; bottom:5%; animation-delay:-9s}
+    .hero__dust span:nth-child(6){left:64%; bottom:2%; animation-delay:-2s}
+    .hero__dust span:nth-child(7){left:73%; bottom:4%; animation-delay:-10s}
+    .hero__dust span:nth-child(8){left:87%; bottom:6%; animation-delay:-4s}
+
+    /*
+      Campo de destellos de cuatro colores.
+      Inspirado en la lógica del código de referencia: muchos elementos pequeños,
+      delays distintos, transformaciones y luz difusa; todo nace en la zona inferior.
+    */
+    .hero__color-field{
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:0;
+      z-index:2;
+      height:42%;
+      overflow:hidden;
+      pointer-events:none;
+      -webkit-mask-image:linear-gradient(to top,#000 0%,#000 62%,transparent 100%);
+      mask-image:linear-gradient(to top,#000 0%,#000 62%,transparent 100%);
+    }
+
+    .hero__color-field::before{
+      content:"";
+      position:absolute;
+      left:-12%;
+      right:-12%;
+      bottom:-14%;
+      height:58%;
+      background:
+        radial-gradient(28% 78% at 14% 100%,rgba(22,119,196,.23),transparent 74%),
+        radial-gradient(28% 78% at 38% 100%,rgba(40,161,15,.16),transparent 74%),
+        radial-gradient(28% 78% at 64% 100%,rgba(210,81,14,.18),transparent 74%),
+        radial-gradient(28% 78% at 88% 100%,rgba(184,17,128,.21),transparent 74%);
+      filter:blur(24px);
+      animation:colorAura 7s ease-in-out infinite alternate;
+    }
+
+    .color-particle{
+      --x:50%;
+      --size:4px;
+      --rise:160px;
+      --drift:18px;
+      --dur:8s;
+      --delay:0s;
+      --color:var(--event-blue);
+      position:absolute;
+      left:var(--x);
+      bottom:-16px;
+      width:var(--size);
+      height:var(--size);
+      border-radius:50%;
+      background:var(--color);
+      box-shadow:
+        0 0 calc(var(--size) * 2.2) color-mix(in srgb,var(--color) 75%,transparent),
+        0 0 calc(var(--size) * 5) color-mix(in srgb,var(--color) 34%,transparent);
+      opacity:0;
+      will-change:transform,opacity;
+      animation:colorParticleRise var(--dur) cubic-bezier(.24,.64,.36,1) var(--delay) infinite;
+    }
+
+    @supports not (color:color-mix(in srgb,red,blue)){
+      .color-particle{box-shadow:0 0 10px rgba(118,216,239,.35)}
+    }
+
+    .color-orb{
+      --x:50%;
+      --size:22px;
+      --dur:10s;
+      --delay:0s;
+      --color:var(--event-blue);
+      position:absolute;
+      left:var(--x);
+      bottom:2%;
+      width:var(--size);
+      height:var(--size);
+      border-radius:50%;
+      background:radial-gradient(circle at 36% 35%,rgba(255,255,255,.72),var(--color) 25%,transparent 73%);
+      filter:blur(3.4px);
+      mix-blend-mode:screen;
+      opacity:0;
+      will-change:transform,opacity;
+      animation:colorOrbFloat var(--dur) ease-in-out var(--delay) infinite;
+    }
+
+    .color-thread{
+      --x:50%;
+      --h:80px;
+      --dur:8s;
+      --delay:0s;
+      --color:var(--event-blue);
+      position:absolute;
+      left:var(--x);
+      bottom:-32px;
+      width:1.5px;
+      height:var(--h);
+      border-radius:99px;
+      background:linear-gradient(to top,transparent,var(--color),transparent);
+      box-shadow:0 0 10px color-mix(in srgb,var(--color) 32%,transparent);
+      opacity:0;
+      animation:colorThreadRise var(--dur) linear var(--delay) infinite;
+      will-change:transform,opacity;
+    }
+
+    .hero__menu{
+      position:absolute;
+      top:max(21px,calc(var(--safe-top) + 8px));
+      left:max(20px,calc(var(--safe-left) + 16px));
+      z-index:20;
+      width:46px;
+      height:42px;
+      padding:5px 3px;
+      border:0;
+      background:transparent;
+      cursor:pointer;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:7px;
+      -webkit-tap-highlight-color:transparent;
+      animation:menuReveal .8s cubic-bezier(.16,1,.3,1) .12s both;
+    }
+
+    .hero__menu span{
+      display:block;
+      width:38px;
+      height:4px;
+      border-radius:99px;
+      background:linear-gradient(90deg,#7fc7df,#b5edf6);
+      border:1px solid rgba(0,0,0,.78);
+      box-shadow:0 2px 9px rgba(0,0,0,.20),0 0 10px rgba(118,216,239,.10);
+    }
+
+    .hero__branding{
+      position:absolute;
+      top:max(20px,calc(var(--safe-top) + 8px));
+      right:max(18px,calc(var(--safe-right) + 14px));
+      z-index:10;
+      width:min(31vw,145px);
+      margin:0;
+      animation:brandReveal .95s cubic-bezier(.16,1,.3,1) .08s both;
+    }
+
+    .hero__branding-shell{
+      width:100%;
+      padding:7px 8px;
+      border-radius:16px;
+      background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(255,255,255,.80));
+      border:1px solid rgba(255,255,255,.58);
+      box-shadow:
+        0 13px 32px rgba(0,0,0,.18),
+        inset 0 1px 0 rgba(255,255,255,.80);
+      backdrop-filter:blur(10px) saturate(118%);
+      -webkit-backdrop-filter:blur(10px) saturate(118%);
+    }
+
+    .hero__event-mark{
+      display:block;
+      width:100%;
+      height:auto;
+      object-fit:contain;
+    }
+
+    .hero__content{
+      position:absolute;
+      left:0;
+      right:0;
+      bottom:max(25px,calc(var(--safe-bottom) + 18px));
+      z-index:5;
+      width:100%;
+      padding:0 clamp(23px,6vw,48px);
+    }
+
+    .hero__copy-card{
+      position:relative;
+      width:min(100%,560px);
+      margin:0 auto;
+      opacity:0;
+      transform:translateY(22px);
+      animation:reveal 1s cubic-bezier(.16,1,.3,1) .18s forwards;
+    }
+
+    .hero__copy-card::before{
+      content:"";
+      position:absolute;
+      inset:-18px -16px -18px;
+      z-index:-1;
+      border-radius:34px;
+      background:
+        linear-gradient(180deg,rgba(255,255,255,.018),rgba(255,255,255,0)),
+        radial-gradient(90% 80% at 50% 100%,rgba(1,39,83,.22),transparent 72%);
+      filter:blur(12px);
+      pointer-events:none;
+    }
+
+    .hero__phrase{
+      position:relative;
+      margin:0 0 20px;
+      color:#fff;
+      font-family:"Noteworthy","Segoe Print","Bradley Hand","Trebuchet MS",sans-serif;
+      font-size:clamp(1.55rem,5.8vw,2.55rem);
+      font-weight:600;
+      font-style:normal;
+      line-height:1.16;
+      letter-spacing:.005em;
+      text-wrap:balance;
+      text-shadow:
+        0 4px 18px rgba(0,0,0,.58),
+        0 10px 32px rgba(0,0,0,.20);
+    }
+
+    .hero__phrase::after{
+      content:"";
+      display:block;
+      width:48px;
+      height:2px;
+      margin-top:14px;
+      border-radius:99px;
+      background:linear-gradient(90deg,var(--accent),rgba(118,216,239,0));
+      box-shadow:0 0 10px rgba(118,216,239,.16);
+    }
+
+    .countdown{
+      position:relative;
+      width:100%;
+      color:#fff;
+      padding:13px 0 0;
+    }
+
+    .countdown::after{
+      content:"";
+      position:absolute;
+      left:10%;
+      right:10%;
+      bottom:-9px;
+      height:18px;
+      border-radius:50%;
+      background:radial-gradient(ellipse at center,rgba(46,186,231,.16),transparent 70%);
+      filter:blur(13px);
+      pointer-events:none;
+    }
+
+    .countdown__eyebrow{
+      margin:0 0 4px;
+      font-size:.63rem;
+      font-weight:800;
+      letter-spacing:.16em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,.84);
+    }
+
+    .countdown__intro{
+      margin:0 0 11px;
+      color:rgba(255,255,255,.76);
+      font-size:.72rem;
+    }
+
+    .countdown__grid{
+      display:grid;
+      grid-template-columns:1fr auto 1fr auto 1fr auto 1fr;
+      align-items:start;
+      padding:14px 0 2px;
+      border-top:1px solid rgba(255,255,255,.25);
+      position:relative;
+    }
+
+    .countdown__grid::before{
+      content:"";
+      position:absolute;
+      top:-1px;
+      left:0;
+      width:34%;
+      height:1px;
+      background:linear-gradient(90deg,var(--accent),transparent);
+      box-shadow:0 0 8px rgba(118,216,239,.20);
+    }
+
+    .countdown__item{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      min-width:0;
+    }
+
+    .countdown__value{
+      color:#fff;
+      font-size:clamp(1.8rem,7.7vw,2.7rem);
+      font-weight:300;
+      line-height:1;
+      letter-spacing:-.055em;
+      font-variant-numeric:tabular-nums;
+      text-shadow:0 3px 12px rgba(0,0,0,.30);
+      transition:transform .18s ease,text-shadow .18s ease;
+    }
+
+    .countdown__value.tick{
+      transform:translateY(-2px) scale(1.035);
+      text-shadow:0 0 16px rgba(118,216,239,.22),0 3px 12px rgba(0,0,0,.30);
+    }
+
+    .countdown__label{
+      margin-top:7px;
+      color:rgba(255,255,255,.66);
+      font-size:.55rem;
+      font-weight:700;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+    }
+
+    .countdown__separator{
+      padding-top:2px;
+      color:var(--accent);
+      font-size:1.35rem;
+      opacity:.88;
+      text-shadow:0 0 10px rgba(118,216,239,.20);
+      animation:separatorPulse 2.4s ease-in-out infinite;
+    }
+
+    .countdown__meta,
+    .countdown__status{
+      margin:8px 0 0;
+      min-height:1em;
+      color:rgba(255,255,255,.64);
+      font-size:.62rem;
+    }
+
+    .countdown__status{ color:#dffcff; }
+
+    @keyframes reveal{
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    @keyframes brandReveal{
+      from{opacity:0;transform:translateY(-12px) scale(.97)}
+      to{opacity:1;transform:translateY(0) scale(1)}
+    }
+
+    @keyframes menuReveal{
+      from{opacity:0;transform:translateX(-10px)}
+      to{opacity:1;transform:translateX(0)}
+    }
+
+    @keyframes ambientBreath{
+      0%{opacity:.78;transform:scale(1)}
+      100%{opacity:1;transform:scale(1.025)}
+    }
+
+    @keyframes glowBreath{
+      0%{opacity:.42;transform:scaleX(.92)}
+      100%{opacity:.78;transform:scaleX(1.05)}
+    }
+
+    @keyframes ringFloat{
+      0%,100%{transform:translateY(0) scale(.9); opacity:.16}
+      50%{transform:translateY(-10px) scale(1.04); opacity:.45}
+    }
+
+    @keyframes floatParticle{
+      0%{opacity:0;transform:translate3d(0,0,0) scale(.85)}
+      14%{opacity:.42}
+      100%{opacity:0;transform:translate3d(-8px,-120px,0) scale(1.16)}
+    }
+
+    @keyframes orbDrift{
+      0%,100%{transform:translate3d(0,0,0) scale(.9); opacity:.18}
+      50%{transform:translate3d(-10px,-18px,0) scale(1.08); opacity:.48}
+    }
+
+    @keyframes dustRise{
+      0%{opacity:0;transform:translate3d(0,0,0)}
+      12%{opacity:.58}
+      100%{opacity:0;transform:translate3d(4px,-90px,0)}
+    }
+
+    @keyframes separatorPulse{
+      0%,100%{opacity:.48}
+      50%{opacity:.95}
+    }
+
+    @keyframes colorAura{
+      0%{transform:translate3d(-1.5%,5px,0) scale(.98);opacity:.70}
+      100%{transform:translate3d(1.5%,-6px,0) scale(1.035);opacity:1}
+    }
+
+    @keyframes colorParticleRise{
+      0%{opacity:0;transform:translate3d(0,20px,0) scale(.55)}
+      11%{opacity:.92}
+      40%{opacity:.75;transform:translate3d(calc(var(--drift) * .38),calc(var(--rise) * -.42),0) scale(1)}
+      72%{opacity:.46;transform:translate3d(calc(var(--drift) * -.28),calc(var(--rise) * -.76),0) scale(.9)}
+      100%{opacity:0;transform:translate3d(var(--drift),calc(var(--rise) * -1),0) scale(.42)}
+    }
+
+    @keyframes colorOrbFloat{
+      0%{opacity:0;transform:translate3d(0,18px,0) scale(.72)}
+      18%{opacity:.42}
+      52%{opacity:.58;transform:translate3d(-10px,-62px,0) scale(1.04)}
+      100%{opacity:0;transform:translate3d(12px,-128px,0) scale(.76)}
+    }
+
+    @keyframes colorThreadRise{
+      0%{opacity:0;transform:translate3d(0,18px,0) scaleY(.78)}
+      18%{opacity:.45}
+      74%{opacity:.30}
+      100%{opacity:0;transform:translate3d(0,-175px,0) scaleY(1.20)}
+    }
+
+    @media (min-width:700px){
+      :root{--hero-focus-x:68%;}
+      .hero__content{padding-left:clamp(32px,7vw,88px);padding-right:clamp(32px,7vw,88px)}
+    }
+
+    @media (min-width:1100px){
+      :root{--hero-focus-x:62%;}
+      .hero__branding{width:min(18vw,180px)}
+      .hero__content{max-width:760px;margin-left:auto;margin-right:auto}
+    }
+
+    @media (min-aspect-ratio:16/10) and (min-width:900px){
+      :root{--hero-focus-x:58%;}
+    }
+
+    @media (max-width:480px){
+      .hero__branding{
+        width:118px;
+        top:max(16px,calc(var(--safe-top) + 6px));
+        right:max(14px,calc(var(--safe-right) + 10px));
+      }
+
+      .hero__branding-shell{padding:6px; border-radius:13px;}
+
+      .hero__content{
+        padding-left:max(22px,calc(var(--safe-left) + 18px));
+        padding-right:max(22px,calc(var(--safe-right) + 18px));
+      }
+
+      .hero__phrase{ max-width:350px; }
+    }
+
+    @media (max-width:370px){
+      .hero__branding{width:102px}
+      .countdown__value{font-size:1.7rem}
+      .countdown__separator{font-size:1.15rem}
+    }
+
+    @media (max-height:690px){
+      .hero__content{bottom:max(18px,calc(var(--safe-bottom) + 12px))}
+      .hero__phrase{margin-bottom:12px;font-size:1.55rem}
+      .countdown__grid{padding-top:10px}
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{
+        animation-duration:.001ms!important;
+        animation-iteration-count:1!important;
+        transition-duration:.001ms!important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main id="app" class="app-shell">
+    <section id="hero-module" class="hero" aria-labelledby="hero-phrase">
+      <img class="hero__image" src="./assets/hero.webp" alt="" width="1200" height="798" decoding="async" fetchpriority="high" />
+
+      <div class="hero__shade" aria-hidden="true"></div>
+      <div class="hero__ambient" aria-hidden="true"></div>
+      <div class="hero__glow" aria-hidden="true"></div>
+
+      <div class="hero__light-rings" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+
+      <div class="hero__particles" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+
+      <div class="hero__orbs" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+
+      <div class="hero__dust" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+      </div>
+
+      <div id="hero-color-field" class="hero__color-field" aria-hidden="true"></div>
+
+      <button class="hero__menu" type="button" aria-label="Abrir menú">
+        <span></span><span></span><span></span>
+      </button>
+
+      <header class="hero__branding" aria-label="Título del evento">
+        <div class="hero__branding-shell">
+          <img class="hero__event-mark" src="./assets/evento-titulo.png" alt="X Encuentro Zonal de Semilleros de Investigación y IV Encuentro de Investigación, Innovación y Proyección Social" width="680" height="240" />
+        </div>
+      </header>
+
+      <div class="hero__content">
+        <div class="hero__copy-card">
+          <p id="hero-phrase" class="hero__phrase">Desde la Zona Caribe, queremos vivir contigo este gran encuentro.</p>
+
+          <div class="countdown" aria-label="Cuenta regresiva para el inicio del encuentro">
+            <p class="countdown__eyebrow">Cuenta regresiva</p>
+            <p class="countdown__intro">Falta poco para encontrarnos</p>
+
+            <div class="countdown__grid" role="timer" aria-live="off">
+              <div class="countdown__item">
+                <strong id="countdown-days" class="countdown__value">00</strong>
+                <span class="countdown__label">días</span>
+              </div>
+              <span class="countdown__separator" aria-hidden="true">:</span>
+              <div class="countdown__item">
+                <strong id="countdown-hours" class="countdown__value">00</strong>
+                <span class="countdown__label">horas</span>
+              </div>
+              <span class="countdown__separator" aria-hidden="true">:</span>
+              <div class="countdown__item">
+                <strong id="countdown-minutes" class="countdown__value">00</strong>
+                <span class="countdown__label">min</span>
+              </div>
+              <span class="countdown__separator countdown__separator--seconds" aria-hidden="true">:</span>
+              <div class="countdown__item countdown__item--seconds">
+                <strong id="countdown-seconds" class="countdown__value">00</strong>
+                <span class="countdown__label">seg</span>
+              </div>
+            </div>
+
+            <p class="countdown__meta"><span id="countdown-date-label"></span></p>
+            <p id="countdown-status" class="countdown__status"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <noscript>
+    <div style="padding:20px;background:#fff;color:#000">Esta experiencia necesita JavaScript para mostrar la cuenta regresiva.</div>
+  </noscript>
+
+  <script>
+    "use strict";
+
+    /* Altura real del viewport: evita saltos por las barras del navegador móvil. */
+    function setViewportHeight(){
+      document.documentElement.style.setProperty("--vh", `${window.innerHeight * 0.01}px`);
+    }
+
+    setViewportHeight();
+    window.addEventListener("resize", setViewportHeight, {passive:true});
+    window.addEventListener("orientationchange", ()=>window.setTimeout(setViewportHeight,120), {passive:true});
+
+    /*
+      Efectos inferiores. Se generan desde JS para no llenar el HTML con decenas
+      de nodos manuales. El generador es determinista para que la composición
+      mantenga el mismo carácter al recargar.
+    */
+    (function buildColorField(){
+      const field = document.getElementById("hero-color-field");
+      if(!field) return;
+
+      const colors = [
+        "var(--event-blue)",
+        "var(--event-green)",
+        "var(--event-orange)",
+        "var(--event-magenta)"
+      ];
+
+      let seed = 271828;
+      const rnd = ()=>{
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        return seed / 4294967296;
+      };
+
+      const lowMemory = typeof navigator.deviceMemory === "number" && navigator.deviceMemory <= 2;
+      const particleCount = lowMemory ? 24 : (window.innerWidth <= 480 ? 42 : 58);
+      const orbCount = lowMemory ? 6 : 12;
+      const threadCount = lowMemory ? 7 : 14;
+
+      const frag = document.createDocumentFragment();
+
+      for(let i=0;i<particleCount;i++){
+        const p = document.createElement("i");
+        p.className = "color-particle";
+        p.style.setProperty("--x", `${3 + rnd()*94}%`);
+        p.style.setProperty("--size", `${2.2 + rnd()*4.8}px`);
+        p.style.setProperty("--rise", `${95 + rnd()*150}px`);
+        p.style.setProperty("--drift", `${-32 + rnd()*64}px`);
+        p.style.setProperty("--dur", `${6.2 + rnd()*7.2}s`);
+        p.style.setProperty("--delay", `${-rnd()*12}s`);
+        p.style.setProperty("--color", colors[i % colors.length]);
+        frag.appendChild(p);
+      }
+
+      for(let i=0;i<orbCount;i++){
+        const o = document.createElement("b");
+        o.className = "color-orb";
+        o.style.setProperty("--x", `${4 + rnd()*90}%`);
+        o.style.setProperty("--size", `${13 + rnd()*25}px`);
+        o.style.setProperty("--dur", `${8 + rnd()*7}s`);
+        o.style.setProperty("--delay", `${-rnd()*10}s`);
+        o.style.setProperty("--color", colors[(i+1) % colors.length]);
+        frag.appendChild(o);
+      }
+
+      for(let i=0;i<threadCount;i++){
+        const t = document.createElement("em");
+        t.className = "color-thread";
+        t.style.setProperty("--x", `${5 + rnd()*90}%`);
+        t.style.setProperty("--h", `${48 + rnd()*72}px`);
+        t.style.setProperty("--dur", `${7 + rnd()*6}s`);
+        t.style.setProperty("--delay", `${-rnd()*9}s`);
+        t.style.setProperty("--color", colors[(i+2) % colors.length]);
+        frag.appendChild(t);
+      }
+
+      field.appendChild(frag);
+    })();
+
+    const EVENT_DATE = "2026-10-01T08:00:00-05:00";
+
+    const daysEl = document.getElementById("countdown-days");
+    const hoursEl = document.getElementById("countdown-hours");
+    const minutesEl = document.getElementById("countdown-minutes");
+    const secondsEl = document.getElementById("countdown-seconds");
+    const dateLabelEl = document.getElementById("countdown-date-label");
+    const statusEl = document.getElementById("countdown-status");
+
+    const target = new Date(EVENT_DATE);
+    let countdownTimer = null;
+    let previousSecond = null;
+
+    function pad2(n){
+      return String(n).padStart(2,"0");
+    }
+
+    function formatEventDate(){
+      if(Number.isNaN(target.getTime())){
+        dateLabelEl.textContent = "";
+        return;
+      }
+
+      const weekday = new Intl.DateTimeFormat("es-CO",{weekday:"long"}).format(target);
+      const datePart = new Intl.DateTimeFormat("es-CO",{
+        day:"numeric",
+        month:"long",
+        year:"numeric"
+      }).format(target);
+      const timePart = new Intl.DateTimeFormat("es-CO",{
+        hour:"numeric",
+        minute:"2-digit",
+        hour12:true
+      }).format(target);
+
+      dateLabelEl.textContent = `${weekday}, ${datePart}, ${timePart}`;
+    }
+
+    function animateTick(){
+      [daysEl,hoursEl,minutesEl,secondsEl].forEach(el=>el.classList.remove("tick"));
+      requestAnimationFrame(()=>{
+        secondsEl.classList.add("tick");
+        window.setTimeout(()=>secondsEl.classList.remove("tick"),180);
+      });
+    }
+
+    function updateCountdown(){
+      const diff = target.getTime() - Date.now();
+
+      if(Number.isNaN(diff)){
+        statusEl.textContent = "Configura una fecha válida en EVENT_DATE.";
+        return;
+      }
+
+      if(diff <= 0){
+        daysEl.textContent = "00";
+        hoursEl.textContent = "00";
+        minutesEl.textContent = "00";
+        secondsEl.textContent = "00";
+        statusEl.textContent = "¡El encuentro ya comenzó!";
+        if(countdownTimer){
+          clearInterval(countdownTimer);
+          countdownTimer = null;
+        }
+        return;
+      }
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      daysEl.textContent = days < 100 ? pad2(days) : String(days);
+      hoursEl.textContent = pad2(hours);
+      minutesEl.textContent = pad2(minutes);
+      secondsEl.textContent = pad2(seconds);
+
+      if(previousSecond !== seconds){
+        animateTick();
+        previousSecond = seconds;
+      }
+
+      statusEl.textContent = "";
+    }
+
+    formatEventDate();
+    updateCountdown();
+    countdownTimer = window.setInterval(updateCountdown,1000);
+
+    document.addEventListener("visibilitychange",()=>{
+      if(!document.hidden){
+        updateCountdown();
+      }
+    });
+  </script>
+</body>
+</html>
